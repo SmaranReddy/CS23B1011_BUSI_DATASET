@@ -1,4 +1,4 @@
-# Breast Ultrasound Image Classification using CNN, Class Weights, and SMOTE
+# Breast Ultrasound Image Classification using CNN, Class Weights, SMOTE, and Depthwise Separable CNN
 
 ## Course
 Deep Learning for Medical Images
@@ -13,7 +13,7 @@ Deep Learning for Medical Images
 
 Breast cancer is one of the leading causes of cancer-related deaths worldwide. Early detection plays a critical role in improving survival rates. Ultrasound imaging is widely used as a non-invasive method to detect abnormalities in breast tissue.
 
-This project develops a **Convolutional Neural Network (CNN)** to classify breast ultrasound images into three categories:
+This project develops deep learning models to classify breast ultrasound images into three categories:
 
 - **Benign**
 - **Malignant**
@@ -21,11 +21,36 @@ This project develops a **Convolutional Neural Network (CNN)** to classify breas
 
 A key challenge in the dataset is **class imbalance**, where benign samples significantly outnumber malignant and normal samples.
 
-To address this issue, three experimental approaches were evaluated:
+To address this issue, two modeling approaches were explored.
 
-1. Simple CNN
-2. CNN with Class Weights
-3. CNN with SMOTE (Synthetic Minority Oversampling Technique)
+---
+
+# Approaches
+
+## 1. Standard CNN (Baseline Notebook)
+
+Three experimental approaches were evaluated:
+
+1. Simple CNN  
+2. CNN with Class Weights  
+3. CNN with SMOTE  
+
+---
+
+## 2. Depthwise Separable CNN (DWS Notebook)
+
+A more advanced and efficient architecture using:
+
+- MobileNetV2 (Transfer Learning)  
+- Depthwise Separable Convolutions  
+- Fine-Tuning  
+- Data Augmentation  
+
+Three experiments were conducted:
+
+1. Transfer Learning Baseline  
+2. Transfer Learning + Class Weights  
+3. Augmented Training (No SMOTE)  
 
 ---
 
@@ -36,137 +61,109 @@ The project uses the **BUSI (Breast Ultrasound Images) dataset** available on Ka
 Dataset Source:  
 https://www.kaggle.com/datasets/subhajournal/busi-breast-ultrasound-images
 
-### Dataset Characteristics
+The dataset contains three classes:
 
-| Class | Train | Validation | Description |
-|------|------|------|------|
-| Benign | 713 | 178 | Non-cancerous tumor |
-| Malignant | 337 | 84 | Cancerous tumor |
-| Normal | 213 | 53 | No abnormality |
+- Benign  
+- Malignant  
+- Normal  
 
-The dataset is split using an **80/20 train-validation split**.
+The dataset was split using stratified sampling into training, validation, and test sets.
 
 ---
 
-# Model Architecture
+# Model Architectures
 
-The CNN architecture used in all experiments consists of:
+## Standard CNN
 
-- Conv2D (32 filters)
-- MaxPooling
-- Conv2D (64 filters)
-- MaxPooling
-- Conv2D (128 filters)
-- MaxPooling
-- Flatten Layer
-- Dense Layer (256 neurons)
-- Dropout (0.5)
-- Softmax Output Layer
+- Conv2D layers with increasing filters  
+- MaxPooling layers  
+- Flatten layer  
+- Dense layer with dropout  
+- Softmax output  
 
-Optimizer: **Adam**  
-Loss Function: **Categorical Crossentropy**
+---
+
+## Depthwise Separable CNN (DWS)
+
+- MobileNetV2 backbone (pretrained on ImageNet)  
+- Depthwise separable convolutions  
+- Global Average Pooling  
+- Dense layer with Batch Normalization  
+- Dropout for regularization  
+- Softmax output layer  
 
 ---
 
 # Experiments
 
-## Experiment A — Simple CNN
+## Standard CNN
 
-The CNN model was trained on the original dataset without addressing class imbalance.
-
-Result:
-- Accuracy: **82%**
-
-However, the model showed poor performance on minority classes due to the imbalanced dataset.
+### Experiment A — Simple CNN
+- Trained on original dataset  
+- Observed bias toward majority class  
 
 ---
 
-## Experiment B — CNN with Class Weights
-
-Class weights were applied during training to penalize misclassification of minority classes.
-
-Result:
-- Accuracy: **81%**
-
-This approach slightly adjusted the loss function but did not significantly improve minority class detection.
+### Experiment B — CNN with Class Weights
+- Applied class weights to address imbalance  
+- Slight improvement in minority class handling  
 
 ---
 
-## Experiment C — CNN with SMOTE
-
-SMOTE (Synthetic Minority Oversampling Technique) was applied to generate additional synthetic samples for minority classes, creating a more balanced dataset.
-
-Result:
-- Accuracy: **93%**
-
-This approach significantly improved model performance.
+### Experiment C — CNN with SMOTE
+- Applied SMOTE on flattened images  
+- Improved balance but introduced unrealistic samples  
 
 ---
 
-# Performance Comparison
+## Depthwise Separable CNN (DWS)
 
-| Experiment | Precision | Recall | F1 Score |
-|---|---|---|---|
-| Simple CNN | 0.072 | 0.269 | 0.114 |
-| CNN + Class Weights | 0.072 | 0.269 | 0.114 |
-| CNN + SMOTE | **0.890** | **0.882** | **0.882** |
+### Experiment A — Transfer Learning Baseline
+- Used MobileNetV2 with frozen layers  
+- Faster convergence compared to standard CNN  
 
-The results show that **SMOTE dramatically improves classification performance** by balancing the dataset.
+---
+
+### Experiment B — Transfer Learning + Class Weights
+- Combined transfer learning with weighted loss  
+- Better handling of imbalance  
+
+---
+
+### Experiment C — Augmented Training (No SMOTE)
+- Used strong data augmentation  
+- Avoided synthetic image generation  
+- Provided more stable and realistic training  
 
 ---
 
 # Key Findings
 
-- Class imbalance severely impacts CNN performance.
-- Class weights alone are not sufficient to address imbalance.
-- SMOTE significantly improves precision, recall, and F1-score.
-- Balanced datasets allow the model to learn better representations for minority classes.
+- Class imbalance significantly impacts performance  
+- Class weights alone provide limited improvement  
+- SMOTE can improve balance but is **not ideal for image data** as it distorts spatial features  
+- Transfer learning significantly improves learning efficiency  
+- Depthwise separable CNNs are:
+  - More computationally efficient  
+  - Better suited for small medical datasets  
+- Data augmentation is a more reliable alternative to synthetic oversampling for images  
 
 ---
 
 # Technologies Used
 
-- Python
-- TensorFlow / Keras
-- OpenCV
-- Scikit-learn
-- Imbalanced-learn (SMOTE)
-- Matplotlib
-- KaggleHub
-- Google Colab
+- Python  
+- TensorFlow / Keras  
+- OpenCV  
+- Scikit-learn  
+- Matplotlib  
+- Kaggle  
 
 ---
 
 # How to Run the Project
 
-### 1. Install required libraries
+## 1. Install dependencies
 
-```
-pip install tensorflow opencv-python scikit-learn imbalanced-learn kagglehub
-```
-
-### 2. Run the notebook
-
-```
-BUSI_dataset.ipynb
-```
-
-### 3. The notebook performs
-
-- Dataset download
-- Image preprocessing
-- CNN training
-- SMOTE oversampling
-- Model evaluation
-
----
-
-# Conclusion
-
-This project demonstrates the importance of addressing **class imbalance in medical imaging datasets**. While baseline CNN models struggle with minority classes, applying SMOTE significantly improves model performance and leads to more reliable predictions.
-
----
-
-# Acknowledgements
-
-BUSI Dataset provided by Kaggle.
+```bash
+pip install tensorflow opencv-python scikit-learn matplotlib
